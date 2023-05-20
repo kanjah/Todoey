@@ -24,7 +24,7 @@ class TodoListViewController: UITableViewController {
     
 //. STEP 2
     //create an array to store all items to be displayed
-    let itemArray = ["Exercise","Conqure","Repeat"]
+    var itemArray = ["Exercise","Conqure","Repeat"]
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -63,4 +63,34 @@ class TodoListViewController: UITableViewController {
         tableView.deselectRow(at: indexPath, animated: true)
     }
     
+    // MARK - ADD NEW ITEMS (BAR BUTTON)
+    
+    //. STEP 5
+    //. add a barButton, connect it
+    //. create an aleart and add a textfield inside
+    //. append the textField.tex to the array up in STEP 2
+    //. use reloadDatat() function to display the newly added item
+    
+    @IBAction func addButtonPressed(_ sender: UIBarButtonItem) {
+        var textField = UITextField()
+        
+        let alert = UIAlertController(title: "Add Todoey Item", message: "", preferredStyle: .alert)
+        //aleart add button text
+        let action = UIAlertAction(title: "Add new Item", style: .default) { (action) in
+            //What will happen once the user clicks the Add Item button of our Alert
+            self.itemArray.append(textField.text!)
+            self.tableView.reloadData()
+            
+        }
+        //. add a text field in the alert
+        alert.addTextField { (alertTextField) in
+            alertTextField.placeholder = "Create New Item"
+            textField = alertTextField
+        }
+        
+        alert.addAction(action)
+        present(alert, animated: true, completion: nil)
+    }
 }
+
+
