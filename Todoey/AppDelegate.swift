@@ -12,9 +12,11 @@ import UIKit
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
 
-
+//. called first as soon as the app loads
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
+        //. to find the path of the defaults plist, run this
+        print(NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).last! as String)
         return true
     }
 

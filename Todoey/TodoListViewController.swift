@@ -24,11 +24,18 @@ class TodoListViewController: UITableViewController {
     
 //. STEP 2
     //create an array to store all items to be displayed
+    //. user defaulsts is used to store key value data
+    //. assign the defaults made in STEP 5 to itemArray, to be able to display data when the app is restored
+    //  to it's previous state
     var itemArray = ["Exercise","Conqure","Repeat"]
     
+    let defaults = UserDefaults.standard
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
+        if let items = defaults.array(forKey: "TOdoListArray") as? [String]{
+            itemArray = items
+        }
     }
 
 //. STEP 3
@@ -70,6 +77,10 @@ class TodoListViewController: UITableViewController {
     //. create an aleart and add a textfield inside
     //. append the textField.tex to the array up in STEP 2
     //. use reloadDatat() function to display the newly added item
+    //. append the textfield text to the itemArray
+    //. save the itemArray to the user default created in STEP 2
+    //. defaults is used for data persistency when the app is closed, it maintains the prevailing states
+    //. defaults is saved in infoplist, it's saves both key and values 
     
     @IBAction func addButtonPressed(_ sender: UIBarButtonItem) {
         var textField = UITextField()
@@ -79,6 +90,7 @@ class TodoListViewController: UITableViewController {
         let action = UIAlertAction(title: "Add new Item", style: .default) { (action) in
             //What will happen once the user clicks the Add Item button of our Alert
             self.itemArray.append(textField.text!)
+            self.defaults.set(self.itemArray, forKey: "TodoListArray")
             self.tableView.reloadData()
             
         }
