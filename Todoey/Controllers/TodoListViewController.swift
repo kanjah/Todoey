@@ -27,19 +27,43 @@ class TodoListViewController: UITableViewController {
     //. user defaulsts is used to store key value data
     //. assign the defaults made in STEP 5 to itemArray, to be able to display data when the app is restored
     //  to it's previous state
-    var itemArray = ["Exercise","Conqure","Repeat"]
+    
+    //. STEP 8
+    //. convert the itemArray to an Item class object created at STEP 6
+    var itemArray = [Item]()
     
     let defaults = UserDefaults.standard
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
-        if let items = defaults.array(forKey: "TOdoListArray") as? [String]{
+        
+        //. STEP 7
+        //. crate newItem from item.swift (item class) and append it to the itemArray
+        
+        let newItem = Item()
+        newItem.title = "Grind"
+        itemArray.append(newItem)
+        
+        let newItem2 = Item()
+        newItem2.title = "Exercise"
+        itemArray.append(newItem2)
+        
+        let newItem3 = Item()
+        newItem3.title = "Sleep"
+        itemArray.append(newItem3)
+        
+        //. when the app loads, we pull out an array for user default, with the key TodoListArray as an
+        //. array of Items, then we set itemArray to items
+        if let items = defaults.array(forKey: "TodoListArray") as? [Item]{
             itemArray = items
         }
     }
 
 //. STEP 3
     //. Add tableview Datasources methods to display data from Array
+    //. dequeuReusableCell simple means that the cell will be reused, once screen real estate is used up
+    //. that is when scrolling down the first cell disappears till the last cell is displayed, and the check
+    //. mark will be included as well
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return itemArray.count
     }
@@ -47,7 +71,21 @@ class TodoListViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "ToDoItemCell", for: indexPath)
         
-        cell.textLabel?.text = itemArray[indexPath.row]
+        let item = itemArray[indexPath.row]
+        cell.textLabel?.text = item.title
+        
+        //. STEP 10
+        //. check if the current Selected cell has is done then add a check mark if not add nothing
+        
+        // <== SWIFT TERNARY OPERATOR ==>
+        //VALUE  = CONDITION ? VALUEIFTRUE : VALUEIFFALSE
+        
+//        if item.done == true {
+//            cell.accessoryType = .checkmark
+//        }else {
+//            cell.accessoryType = .none
+//        }
+        cell.accessoryType = item.done ? .checkmark : .none
         return cell
     }
 
@@ -58,13 +96,24 @@ class TodoListViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         //print(itemArray[indexPath.row])
         
-        //add a checkmark to the current selected cell[indexPath]. This method uses the protocell category
-        //property to insert a checkmark.
-        if tableView.cellForRow(at: indexPath)?.accessoryType == .checkmark {
-            tableView.cellForRow(at: indexPath)?.accessoryType = .none
-        }else {
-            tableView.cellForRow(at: indexPath)?.accessoryType = .checkmark
-        }
+        //. add a checkmark to the current selected cell[indexPath]. This method uses the protocell category
+        //. property to insert a checkmark.
+        
+        //. STEP 9
+        //. check if the current selected is done,
+        itemArray[indexPath.row].done = !itemArray[indexPath.row].done
+            
+        
+        //. STEP 11
+        //. Comment this 3 lines
+//        if tableView.cellForRow(at: indexPath)?.accessoryType == .checkmark {
+//            tableView.cellForRow(at: indexPath)?.accessoryType = .none
+//        }else {
+//            tableView.cellForRow(at: indexPath)?.accessoryType = .checkmark
+//        }
+        //. STEP 12
+        //. a reload() to show the check mark on the current selected text
+        tableView.reloadData()
         
         //cell display animation
         tableView.deselectRow(at: indexPath, animated: true)
@@ -89,7 +138,12 @@ class TodoListViewController: UITableViewController {
         //aleart add button text
         let action = UIAlertAction(title: "Add new Item", style: .default) { (action) in
             //What will happen once the user clicks the Add Item button of our Alert
-            self.itemArray.append(textField.text!)
+            //. create a new item, set its title property from the textfield. the done is set to false by
+            //. by default in the Item.swift. Then we append the newItem to the itemArray
+            //. then we set it to user defaults using the TodoListArray Key
+            let newItem = Item()
+            newItem.title = textField.text!
+            self.itemArray.append(newItem)
             self.defaults.set(self.itemArray, forKey: "TodoListArray")
             self.tableView.reloadData()
             
