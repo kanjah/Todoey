@@ -20,7 +20,7 @@ import UIKit
 //Add a title to the navigationController as well
 class TodoListViewController: UITableViewController {
     
-    //MARK  - TABLEVIEW DATASOURCE METHODS
+//<=====================================TABLEVIEW DATASOURCE METHODS=========================================>
     
 //. STEP 2
     //create an array to store all items to be displayed
@@ -32,31 +32,51 @@ class TodoListViewController: UITableViewController {
     //. convert the itemArray to an Item class object created at STEP 6
     var itemArray = [Item]()
     
-    let defaults = UserDefaults.standard
+    //. STEP 13
+    //. create a file path to document directory as an array and retrive the first element of the array
+    //. this method is used since userdefaults isnt releable in data persistence, then add this to
+    //. Items.plist
+    let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Items.plist")
+    
+    //. STEP 14
+    //. comment out the userDefaults
+    //let defaults = UserDefaults.standard
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
+        print(dataFilePath  )
+        
         
         //. STEP 7
         //. crate newItem from item.swift (item class) and append it to the itemArray
         
-        let newItem = Item()
-        newItem.title = "Grind"
-        itemArray.append(newItem)
+        //. STEP 26
+        //. comment STEP 7 and add decodable to the item class.swift
         
-        let newItem2 = Item()
-        newItem2.title = "Exercise"
-        itemArray.append(newItem2)
-        
-        let newItem3 = Item()
-        newItem3.title = "Sleep"
-        itemArray.append(newItem3)
+//        let newItem = Item()
+//        newItem.title = "Grind"
+//        itemArray.append(newItem)
+//
+//        let newItem2 = Item()
+//        newItem2.title = "Exercise"
+//        itemArray.append(newItem2)
+//
+//        let newItem3 = Item()
+//        newItem3.title = "Sleep"
+//        itemArray.append(newItem3)
         
         //. when the app loads, we pull out an array for user default, with the key TodoListArray as an
         //. array of Items, then we set itemArray to items
-        if let items = defaults.array(forKey: "TodoListArray") as? [Item]{
-            itemArray = items
-        }
+//        if let items = defaults.array(forKey: "TodoListArray") as? [Item]{
+//            itemArray = items
+//        }
+        //. STEP 18
+        //. comment out the if statement
+        
+        //. STEP 24
+        //.create a loadItems method to replace the hard coded inputs in STEP 7
+        loadItems()
     }
 
 //. STEP 3
@@ -102,7 +122,11 @@ class TodoListViewController: UITableViewController {
         //. STEP 9
         //. check if the current selected is done,
         itemArray[indexPath.row].done = !itemArray[indexPath.row].done
-            
+        
+        //. STEP 22
+        //. call the saveItems() after adding check mark in STEP 9 above
+        saveItems()
+
         
         //. STEP 11
         //. Comment this 3 lines
@@ -113,13 +137,17 @@ class TodoListViewController: UITableViewController {
 //        }
         //. STEP 12
         //. a reload() to show the check mark on the current selected text
-        tableView.reloadData()
+        // tableView.reloadData()
+        
+        //. STEP 23
+        //. comment STEP 12
         
         //cell display animation
         tableView.deselectRow(at: indexPath, animated: true)
     }
+ //<================================================ END ====================================================>
     
-    // MARK - ADD NEW ITEMS (BAR BUTTON)
+// <================================= MARK - ADD NEW ITEMS (BAR BUTTON)======================================>
     
     //. STEP 5
     //. add a barButton, connect it
@@ -141,13 +169,37 @@ class TodoListViewController: UITableViewController {
             //. create a new item, set its title property from the textfield. the done is set to false by
             //. by default in the Item.swift. Then we append the newItem to the itemArray
             //. then we set it to user defaults using the TodoListArray Key
+            //. reload() is used for displaying new  data
             let newItem = Item()
             newItem.title = textField.text!
             self.itemArray.append(newItem)
-            self.defaults.set(self.itemArray, forKey: "TodoListArray")
-            self.tableView.reloadData()
-            
         }
+            //. STEP 21
+            //. call the saveItems function
+            saveItems()
+            
+            //. STEP 15
+            //. comment out defaults
+            //self.defaults.set(self.itemArray, forKey: "TodoListArray")
+            
+            //. STEP 16
+            //. we use enoder instead of userdefaults for data persistence. we encode the data and write it
+            //. to our data file path and modify the Item.swift class to accomodate the encode
+//            let encoder = PropertyListEncoder()
+//            do{
+//                let data = try encoder.encode(self.itemArray)
+//                try data.write(to: self.dataFilePath!)
+//            }catch{
+//                print("Error Encoding item array, \(error)")
+//            }
+//
+//            self.tableView.reloadData()
+//
+//        }
+        //. STEP 19
+        //. coment STEP 16, copy it and move it to a function on it's own since we want to include the check
+        //. mark, once a todo is done. this is done in STEP 20
+        
         //. add a text field in the alert
         alert.addTextField { (alertTextField) in
             alertTextField.placeholder = "Create New Item"
@@ -156,7 +208,40 @@ class TodoListViewController: UITableViewController {
         
         alert.addAction(action)
         present(alert, animated: true, completion: nil)
+  //}
+    
+
+        
+}
+//<================================================ END =====================================================>
+
+//<======================================= MODEL MANIPULATION METHODS =======================================>
+//. STEP 20
+//. create a new saveItem function
+    func saveItems() {
+        let encoder = PropertyListEncoder()
+            do{
+                let data = try encoder.encode(itemArray)
+                try data.write(to: dataFilePath!)
+            }catch{
+                print("Error Encoding item array, \(error)")
+            }
+            
+            self.tableView.reloadData()
+    
+}
+//. STEP 25
+    //. define the loadItems method here, which loads items automatically to the plist
+    //. create a variable from the contents of the datafile path
+    //. decode the data and assign it to the itemArray
+    func loadItems(){
+        if let data = try? Data(contentsOf: dataFilePath!){
+            let decoder = PropertyListDecoder()
+            do {
+                itemArray = try decoder.decode([Item].self, from: data)
+            }catch{
+                print("There wan an error decoding item array, \(error)")
+            }
+        }
     }
 }
-
-
